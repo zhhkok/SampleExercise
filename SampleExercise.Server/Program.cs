@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (string.IsNullOrEmpty(connectionString))
 {
-    throw new InvalidOperationException("Connection string 'DefaultConnection' not found in appsettings.json.");
+    throw new InvalidOperationException("Connection string 'DefaultConnection' not found in configuration.");
 }
 
 builder.Services.AddScoped<IUserMessageRepository>(sp => new UserMessageRepository(connectionString));
