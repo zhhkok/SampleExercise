@@ -24,7 +24,6 @@ const UserMessageCreateModal: React.FC<UserMessageCreateModalProps> = ({
     value: string,
     setter: (value: string) => void
   ) => {
-    // Only allow digits
     const numbersOnly = value.replace(/[^0-9]/g, "");
     setter(numbersOnly);
   };
@@ -32,7 +31,6 @@ const UserMessageCreateModal: React.FC<UserMessageCreateModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Call the POST endpoint
       await createUserMessage({
         senderNumber: Number(senderNumber),
         recipientNumber: Number(recipientNumber),

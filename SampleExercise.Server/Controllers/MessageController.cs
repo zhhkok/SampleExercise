@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using SampleExercise.Application.Interface;
 using SampleExercise.Application.Model;
 using SampleExercise.Server.Helper;
+using System.Text.Json;
 
 namespace SampleExercise.Server.Controllers;
 
@@ -16,25 +17,97 @@ public class UserMessagesController : ControllerBase
         _messageRepository = messageRepository;
     }
 
+    //[HttpPost]
+    //public async Task<ActionResult<UserMessage>> CreateMessage([FromBody] UserMessageCreateDto messageDto)
+    //{
+    //    if (messageDto == null)
+    //    {
+    //        return BadRequest("Message data is null.");
+    //    }
+    //    if (messageDto.SenderNumber <= 0 || messageDto.RecipientNumber <= 0)
+    //    {
+    //        return BadRequest("SenderNumber and RecipientNumber must be valid.");
+    //    }
+    //    if (messageDto.SenderNumber.ToString().Length < 10 || messageDto.RecipientNumber.ToString().Length < 10)
+    //    {
+    //        return BadRequest("SenderNumber and RecipientNumber must be at least 10 digits long.");
+    //    }
+
+    //    try
+    //    {
+    //        var createdMessage = await _messageRepository.CreateMessageAsync(messageDto);
+    //        return CreatedAtAction(nameof(GetMessageById), new { id = createdMessage.Id }, createdMessage);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        return StatusCode(500, "An error occurred while creating the message. " + ex.Message);
+    //    }
+    //}
+
     [HttpPost]
-    public async Task<ActionResult<UserMessage>> CreateMessage([FromBody] UserMessageCreateDto messageDto)
+    public async Task<IActionResult> CreateMessage()
     {
-        if (messageDto == null)
+        var userMessageCreateDto = new UserMessageCreateDto();
+
+        if(Request.Query.Any())
         {
-            return BadRequest("Message data is null.");
+            userMessageCreateDto = new UserMessageCreateDto
+            {
+                SenderNumber = long.TryParse(Request.Query["SenderNumber"], out var sender) ? sender : 0,
+                RecipientNumber = long.TryParse(Request.Query["RecipientNumber"], out var recipient) ? recipient : 0,
+                MessageContent = Request.Query["MessageContent"].ToString()
+            };
         }
-        if (messageDto.SenderNumber <= 0 || messageDto.RecipientNumber <= 0)
+
+        if (Request.HasFormContentType && Request.Form.Any())
+        {
+            userMessageCreateDto = new UserMessageCreateDto
+            {
+                SenderNumber = long.TryParse(Request.Form["SenderNumber"], out var sender) ? sender : 0,
+                RecipientNumber = long.TryParse(Request.Form["RecipientNumber"], out var recipient) ? recipient : 0,
+                MessageContent = Request.Form["MessageContent"].ToString()
+            };
+        }
+
+        if (Request.ContentType != null && Request.ContentType.Contains("application/json") && Request.ContentLength > 0)
+        {
+            try
+            {
+                using (var reader = new StreamReader(Request.Body))
+                {
+                    var jsonString = await reader.ReadToEndAsync();
+                    if (!string.IsNullOrWhiteSpace(jsonString))
+                    {
+                        userMessageCreateDto = JsonSerializer.Deserialize<UserMessageCreateDto>(jsonString, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+                    }
+                }
+            }
+            catch (JsonException ex)
+            {
+                return BadRequest(new { error = "Invalid JSON payload", details = ex.Message });
+            }
+        }
+
+        if (userMessageCreateDto.SenderNumber <= 0 || userMessageCreateDto.RecipientNumber <= 0)
         {
             return BadRequest("SenderNumber and RecipientNumber must be valid.");
         }
-        if (messageDto.SenderNumber.ToString().Length < 10 || messageDto.RecipientNumber.ToString().Length < 10)
+        if (userMessageCreateDto.SenderNumber.ToString().Length < 10 || userMessageCreateDto.RecipientNumber.ToString().Length < 10)
         {
             return BadRequest("SenderNumber and RecipientNumber must be at least 10 digits long.");
         }
 
+        if (userMessageCreateDto.MessageContent == null || userMessageCreateDto.MessageContent.Trim().Length == 0)
+        {
+            return BadRequest("MessageContent cannot be null or empty.");
+        }
+
         try
         {
-            var createdMessage = await _messageRepository.CreateMessageAsync(messageDto);
+            var createdMessage = await _messageRepository.CreateMessageAsync(userMessageCreateDto);
             return CreatedAtAction(nameof(GetMessageById), new { id = createdMessage.Id }, createdMessage);
         }
         catch (Exception ex)

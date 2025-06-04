@@ -4,12 +4,6 @@ import type { UserMessage } from "../models/UserMessageModel";
 
 const API_BASE_URL = "/api/usermessages";
 
-/**
- * Creates a new user message.
- * Corresponds to SampleExercise.Server.Controllers.UserMessagesController.CreateMessage
- * @param messageDto The message data.
- * @returns The created user message.
- */
 export async function createUserMessage(
   messageDto: UserMessageCreateDto
 ): Promise<UserMessage> {
@@ -30,9 +24,6 @@ export async function createUserMessage(
   return (await response.json()) as UserMessage;
 }
 
-/**
- * Parameters for fetching messages.
- */
 export interface GetMessagesParams {
   messageFilter?: string;
   sortBy?: "Id" | "MessageContent" | "SubmittedOn" | "ModifiedOn";
@@ -40,12 +31,7 @@ export interface GetMessagesParams {
   pageNumber?: number;
   pageSize?: number;
 }
-/**
- * Retrieves a paginated list of user messages.
- * Corresponds to SampleExercise.Server.Controllers.UserMessagesController.GetMessages
- * @param params Filtering, sorting, and pagination parameters.
- * @returns A paged result of user messages.
- */
+
 export async function getMessages(
   params: GetMessagesParams = {}
 ): Promise<PagedResult<UserMessage>> {
@@ -73,12 +59,6 @@ export async function getMessages(
   return (await response.json()) as PagedResult<UserMessage>;
 }
 
-/**
- * Retrieves a specific user message by its ID.
- * Corresponds to SampleExercise.Server.Controllers.UserMessagesController.GetMessageById
- * @param id The ID of the message.
- * @returns The user message.
- */
 export async function getMessageById(id: number): Promise<UserMessage> {
   const response = await fetch(`${API_BASE_URL}/${id}`, {
     headers: {
@@ -97,12 +77,6 @@ export async function getMessageById(id: number): Promise<UserMessage> {
   return (await response.json()) as UserMessage;
 }
 
-/**
- * Updates an existing user message.
- * Corresponds to SampleExercise.Server.Controllers.UserMessagesController.UpdateMessage
- * @param id The ID of the message to update.
- * @param messageContent The new content for the message.
- */
 export async function updateMessage(
   id: number,
   messageContent: string
@@ -112,7 +86,7 @@ export async function updateMessage(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(messageContent), // ASP.NET Core [FromBody] string expects a JSON string literal
+    body: JSON.stringify(messageContent),
   });
   if (!response.ok) {
     if (response.status === 404) {
@@ -125,11 +99,6 @@ export async function updateMessage(
   }
 }
 
-/**
- * Deletes a user message by its ID.
- * Corresponds to SampleExercise.Server.Controllers.UserMessagesController.DeleteMessage
- * @param id The ID of the message to delete.
- */
 export async function deleteMessage(id: number): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/${id}`, {
     method: "DELETE",

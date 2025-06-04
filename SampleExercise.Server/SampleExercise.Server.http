@@ -1,6 +1,29 @@
-@SampleExercise.Server_HostAddress = http://localhost:5038
+@SampleExercise.Server_HostAddress = https://localhost:32769
 
-GET {{SampleExercise.Server_HostAddress}}/weatherforecast/
+### POST with JSON body
+POST {{SampleExercise.Server_HostAddress}}/api/usermessages/
+Content-Type: application/json
+Accept: application/json
+
+{
+  "senderNumber": 1234567890,
+  "recipientNumber": 9876543210,
+  "messageContent": "Hello, this is a test message from json."
+}
+
+###
+
+### POST with x-www-form-urlencoded
+POST {{SampleExercise.Server_HostAddress}}/api/usermessages/
+Content-Type: application/x-www-form-urlencoded
+Accept: application/json
+
+senderNumber=1234567890&recipientNumber=9876543210&messageContent=Hello%2C%20this%20is%20a%20test%20message%20from%20form.
+
+###
+
+### POST with query string (not typical for POST, but shown for completeness)
+POST {{SampleExercise.Server_HostAddress}}/api/usermessages/?senderNumber=1234567890&recipientNumber=9876543210&messageContent=Hello%2C%20this%20is%20a%20test%20message%20from%20query%20string.
 Accept: application/json
 
 ###
