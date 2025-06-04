@@ -38,13 +38,24 @@ jobs:
       - name: Restore solution dependencies
         run: dotnet restore "${{ env.SOLUTION_PATH }}"
 
-      - name: Build entire solution (includes client build via MSBuild)
+      - name: Build client application
+        working-directory: sampleexercise.client
+        run: |
+          npm ci
+          npm run build
+
+      - name: Build entire solution
         run: dotnet build "${{ env.SOLUTION_PATH }}" --configuration Release --no-restore
 
       - name: Test solution
         run: dotnet test "${{ env.SOLUTION_PATH }}" --configuration Release --no-build --verbosity normal
 
-      - name: Publish server project (includes client assets)
+      - name: Copy client build to server wwwroot
+        run: |
+          mkdir -p SampleExercise.Server/wwwroot
+          cp -r sampleexercise.client/dist/* SampleExercise.Server/wwwroot/
+
+      - name: Publish server project
         run: dotnet publish "${{ env.SERVER_PROJECT_PATH }}" --configuration Release --no-build --output ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
