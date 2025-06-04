@@ -36,7 +36,7 @@ public class UserMessageRepository : IUserMessageRepository
                 messageDto.SenderNumber,
                 messageDto.RecipientNumber,
                 messageDto.MessageContent,
-                messageDto.Status,
+                Status = "New",
                 SubmittedOn = now,
                 ModifiedOn = now
             };
@@ -77,11 +77,12 @@ public class UserMessageRepository : IUserMessageRepository
 
         countQueryBuilder.Append(fromAndWhereBuilder.ToString());
 
-        // Validate sortBy and sortOrder to prevent SQL injection if directly concatenating
-        // (though here we are selecting from predefined valid fields)
         string orderByClause;
-        string validatedSortBy = sortBy.Equals("ModifiedOn", StringComparison.OrdinalIgnoreCase) ? "ModifiedOn" : "SubmittedOn"; // Default to SubmittedOn
-        string validatedSortOrder = sortOrder.Equals("DESC", StringComparison.OrdinalIgnoreCase) ? "DESC" : "ASC"; // Default to ASC
+        string validatedSortBy = sortBy.Equals("ModifiedOn", StringComparison.OrdinalIgnoreCase) ? "ModifiedOn"
+            : sortBy.Equals("MessageContent", StringComparison.OrdinalIgnoreCase) ? "MessageContent"
+            : sortBy.Equals("Id", StringComparison.OrdinalIgnoreCase) ? "Id"
+            : "SubmittedOn"; // Default to SubmittedOn
+        string validatedSortOrder = sortOrder.Equals("DESC", StringComparison.OrdinalIgnoreCase) ? "DESC" : "ASC";
 
         orderByClause = $"ORDER BY {validatedSortBy} {validatedSortOrder} ";
 

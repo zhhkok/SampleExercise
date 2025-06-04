@@ -35,12 +35,11 @@ export async function createUserMessage(
  */
 export interface GetMessagesParams {
   messageFilter?: string;
-  sortBy?: "SubmittedOn" | "ModifiedOn";
+  sortBy?: "Id" | "MessageContent" | "SubmittedOn" | "ModifiedOn";
   sortOrder?: "ASC" | "DESC";
   pageNumber?: number;
   pageSize?: number;
 }
-
 /**
  * Retrieves a paginated list of user messages.
  * Corresponds to SampleExercise.Server.Controllers.UserMessagesController.GetMessages

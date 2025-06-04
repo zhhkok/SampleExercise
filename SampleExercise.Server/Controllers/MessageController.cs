@@ -55,7 +55,7 @@ public class UserMessagesController : ControllerBase
         if (pageSize < 1) pageSize = 1;
         if (pageSize > 100) pageSize = 100;
 
-        var validSortFields = new[] { "SubmittedOn", "ModifiedOn" };
+        var validSortFields = new[] { "SubmittedOn", "ModifiedOn", "MessageContent", "Id" };
         if (!validSortFields.Contains(sortBy, StringComparer.OrdinalIgnoreCase))
         {
             return BadRequest($"Invalid sortBy field. Allowed values are: {string.Join(", ", validSortFields)}.");
