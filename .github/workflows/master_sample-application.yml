@@ -35,24 +35,16 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install client dependencies
-        working-directory: ./sampleexercise.client
-        run: npm install
-
-      - name: Build client application
-        working-directory: ./sampleexercise.client
-        run: npm run build
-
       - name: Restore solution dependencies
         run: dotnet restore "${{ env.SOLUTION_PATH }}"
 
-      - name: Build entire solution (Application, Infrastructure, Server)
+      - name: Build entire solution (includes client build via MSBuild)
         run: dotnet build "${{ env.SOLUTION_PATH }}" --configuration Release --no-restore
 
       - name: Test solution
         run: dotnet test "${{ env.SOLUTION_PATH }}" --configuration Release --no-build --verbosity normal
 
-      - name: Publish server project (includes all dependencies)
+      - name: Publish server project (includes client assets)
         run: dotnet publish "${{ env.SERVER_PROJECT_PATH }}" --configuration Release --no-build --output ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
